@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DG8AB AI Chatbot - Experience Advanced AI Solutions</title>
+  
+  <!-- Load Puter.js -->
+  <script src="https://js.puter.com/v2/"></script>
+  
+  <!-- Boxicons -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* Chatbot Specific Styles */
+    .chatbot-container {
+      max-width: 1000px;
+      margin: 30px auto;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 60px);
+    }
+    
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .chat-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+    }
+    
+    .chat-header h1 {
+      font-size: 1.5rem;
+      margin-left: 15px;
+      font-weight: 600;
+    }
+    
+    .chat-header .bot-icon {
+      width: 36px;
+      height: 36px;
+      background-color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .model-selector {
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      padding: 8px 15px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+    }
+    
+    .model-selector option {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .chat-messages {
+      padding: 30px;
+      height: 500px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-color);
+    }
+    
+    .message {
+      max-width: 80%;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      border-radius: 18px;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+      word-wrap: break-word;
+      line-height: 1.5;
+    }
+    
+    .user-message {
+      background-color: var(--primary-color);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    
+    .bot-message {
+      background-color: #f0f0f0;
+      color: var(--text-color);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    
+    .typing-indicator {
+      display: inline-block;
+      padding: 0 5px;
+    }
+    
+    .typing-indicator span {
+      height: 8px;
+      width: 8px;
+      float: left;
+      margin: 0 2px;
+      background-color: #9E9EA1;
+      display: block;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+    
+    .typing-indicator span:nth-of-type(1) {
+      animation: 1s typing infinite;
+    }
+    
+    .typing-indicator span:nth-of-type(2) {
+      animation: 1s typing infinite 0.2s;
+    }
+    
+    .typing-indicator span:nth-of-type(3) {
+      animation: 1s typing infinite 0.4s;
+    }
+    
+    @keyframes typing {
+      0% {
+        transform: translateY(0px);
+      }
+      25% {
+        transform: translateY(-5px);
+      }
+      50% {
+        transform: translateY(0px);
+      }
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .chat-input {
+      display: flex;
+      padding: 20px;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+    }
+    
+    .chat-input input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 1px solid var(--border-color);
+      border-radius: 25px;
+      font-size: 16px;
+      outline: none;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    
+    .chat-input button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 0 25px;
+      margin-left: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    
+    .chat-input button i {
+      font-size: 20px;
+    }
+    
+    .chat-input button:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .chat-input button:disabled {
+      background-color: var(--disabled-color);
+      cursor: not-allowed;
+    }
+    
+    .status-bar {
+      background-color: var(--card-bg);
+      padding: 10px 20px;
+      font-size: 14px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .status {
+      display: flex;
+      align-items: center;
+    }
+    
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-online {
+      background-color: #10b981;
+    }
+    
+    .status-offline {
+      background-color: #ef4444;
+    }
+    
+    .status-connecting {
+      background-color: #f59e0b;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        opacity: 0.6;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.6;
+      }
+    }
+    
+    .info-bar {
+      padding: 20px;
+      background-color: var(--accent-light);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+    }
+    
+    .info-bar h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: var(--text-color);
+    }
+    
+    .info-bar p {
+      color: var(--text-color);
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    
+    .examples {
+      margin-top: 15px;
+    }
+    
+    .examples h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: var(--text-color);
+    }
+    
+    .example-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    
+    .example-item {
+      background-color: var(--card-bg);
+      padding: 12px 15px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid var(--border-color);
+    }
+    
+    .example-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .model-info {
+      margin-top: 20px;
+    }
+    
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .model-card {
+      background-color: var(--card-bg);
+      padding: 15px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+    }
+    
+    .model-card h4 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+    
+    .model-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    
+    .back-to-site {
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .back-to-site a {
+      display: inline-flex;
+      align-items: center;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    .back-to-site a:hover {
+      color: var(--primary-dark);
+    }
+    
+    .back-to-site a i {
+      margin-right: 5px;
+    }
+    
+    @media (max-width: 768px) {
+      .chatbot-container {
+        padding: 10px;
+        margin: 0;
+        min-height: 100vh;
+      }
+      
+      .chat-messages {
+        height: 400px;
+        padding: 15px;
+      }
+      
+      .chat-header h1 {
+        font-size: 1.2rem;
+      }
+      
+      .example-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .model-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="logo">
+        <a href="index.html">
+          <span class="text-primary">DG8AB</span> <span class="text-secondary">AI</span>
+        </a>
+      </div>
+      
+      <div class="nav-links">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#demo">Demo</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+      
+      <div class="nav-toggle">
+        <i class='bx bx-menu'></i>
+      </div>
+    </div>
+  </nav>
+
+  <div class="chatbot-container">
+    <div class="info-bar">
+      <h2>DG8AB AI Assistant</h2>
+      <p>Welcome to our interactive AI demo! This assistant showcases the capabilities of our advanced AI technology. Ask questions, request information, or try out creative tasks to see how our AI can help your business.</p>
+      
+      <div class="examples">
+        <h3>Try these example prompts:</h3>
+        <div class="example-list">
+          <div class="example-item" onclick="useExample('Explain how AI can improve customer service for my business')">
+            Explain how AI can improve customer service for my business
+          </div>
+          <div class="example-item" onclick="useExample('What are the latest trends in AI for enterprise applications?')">
+            What are the latest trends in AI for enterprise applications?
+          </div>
+          <div class="example-item" onclick="useExample('Write a professional email announcing a new AI integration')">
+            Write a professional email announcing a new AI integration
+          </div>
+        </div>
+      </div>
+      
+      <div class="model-info">
+        <h3>Available Models:</h3>
+        <div class="model-grid">
+          <div class="model-card">
+            <h4>DG8AB Advanced</h4>
+            <p>Our most capable model for complex tasks requiring deep understanding and nuanced responses.</p>
+          </div>
+          <div class="model-card">
+            <h4>DG8AB Standard</h4>
+            <p>Balanced performance with good understanding and response quality for general applications.</p>
+          </div>
+          <div class="model-card">
+            <h4>DG8AB Fast</h4>
+            <p>Optimized for speed and efficiency while maintaining good response quality.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="bot-icon">
+            <span>🤖</span>
+          </div>
+          <h1>DG8AB AI Assistant</h1>
+        </div>
+        <select id="model-selector" class="model-selector">
+          <option value="dg8ab-advanced">DG8AB Advanced</option>
+          <option value="dg8ab-standard">DG8AB Standard</option>
+          <option value="dg8ab-fast">DG8AB Fast</option>
+        </select>
+      </div>
+      
+      <div class="chat-messages" id="chat-messages">
+        <!-- Messages will be added here -->
+        <div class="message bot-message">
+          Hello! I'm the DG8AB AI assistant. I can help answer questions, generate content, and provide insights based on your needs. How can I assist you today?
+        </div>
+      </div>
+      
+      <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Type your message here..." autofocus>
+        <button id="send-button"><i class='bx bx-send'></i></button>
+      </div>
+      
+      <div class="status-bar">
+        <div class="status">
+          <div id="status-indicator" class="status-indicator status-connecting"></div>
+          <span id="status-text">Initializing AI...</span>
+        </div>
+        <div id="model-info">Model: <span id="current-model">DG8AB Advanced</span></div>
+      </div>
+    </div>
+    
+    <div class="back-to-site">
+      <a href="index.html"><i class='bx bx-arrow-back'></i> Back to Main Site</a>
+    </div>
+  </div>
+
+  <script>
+    // Define AI models (these map to the Puter.js models but are hidden from the user)
+    const AI_MODELS = {
+      'dg8ab-advanced': 'gpt4o-mini',
+      'dg8ab-standard': 'mistral-large-latest',
+      'dg8ab-fast': 'gemini-1.5-flash'
+    };
+    
+    // Get DOM elements
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const modelSelector = document.getElementById('model-selector');
+    const statusIndicator = document.getElementById('status-indicator');
+    const statusText = document.getElementById('status-text');
+    const currentModelText = document.getElementById('current-model');
+    
+    // Initialize variables
+    let puterInitialized = false;
+    let selectedModel = 'dg8ab-advanced'; // Our branded model name
+    
+    // Disable send button until Puter.js is ready
+    sendButton.disabled = true;
+    
+    // Function to initialize Puter.js
+    async function initializePuter() {
+      try {
+        updateStatus('connecting', 'Initializing AI...');
+        
+        const maxAttempts = 5;
+        let attempts = 0;
+        
+        while (attempts < maxAttempts) {
+          if (window.puter?.ai?.chat) {
+            try {
+              // Test initialization with a minimal request
+              await window.puter.ai.chat([
+                { role: 'user', content: 'test' }
+              ], {
+                model: AI_MODELS[selectedModel] // Convert to actual model
+              });
+              
+              puterInitialized = true;
+              updateStatus('online', 'AI Ready');
+              sendButton.disabled = false;
+              return true;
+            } catch (error) {
+              console.warn('AI not ready yet, retrying...', error);
+            }
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          attempts++;
+        }
+        
+        throw new Error('Failed to initialize AI after maximum attempts');
+      } catch (error) {
+        console.error('AI initialization error:', error);
+        updateStatus('offline', 'AI Connection Error');
+        addMessage("I'm having trouble connecting to my AI brain. Please try again later or refresh the page.", false);
+        return false;
+      }
+    }
+    
+    // Function to update connection status UI
+    function updateStatus(status, message) {
+      statusText.textContent = message;
+      statusIndicator.className = 'status-indicator';
+      
+      if (status === 'online') {
+        statusIndicator.classList.add('status-online');
+      } else if (status === 'offline') {
+        statusIndicator.classList.add('status-offline');
+      } else {
+        statusIndicator.classList.add('status-connecting');
+      }
+    }
+    
+    // Function to add a message to the chat
+    function addMessage(message, isUser = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+      messageDiv.textContent = message;
+      chatMessages.appendChild(messageDiv);
+      
+      // Scroll to the bottom
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Function to show typing indicator
+    function showTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.classList.add('message', 'bot-message', 'typing-message');
+      typingDiv.id = 'typing-indicator';
+      
+      const typingIndicator = document.createElement('div');
+      typingIndicator.classList.add('typing-indicator');
+      
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('span');
+        typingIndicator.appendChild(dot);
+      }
+      
+      typingDiv.appendChild(typingIndicator);
+      chatMessages.appendChild(typingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Function to hide typing indicator
+    function hideTypingIndicator() {
+      const typingIndicator = document.getElementById('typing-indicator');
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
+    }
+    
+    // Function to get AI response using Puter.js (but we present it as our own AI)
+    async function getAIResponse(userMessage) {
+      if (!puterInitialized) {
+        return "I'm not fully initialized yet. Please wait a moment and try again.";
+      }
+      
+      try {
+        const fullPrompt = `As an AI assistant called DG8AB AI, respond to this message: ${userMessage}`;
+        
+        const response = await window.puter.ai.chat([
+          { role: 'user', content: fullPrompt }
+        ], {
+          model: AI_MODELS[selectedModel] // Convert branded name to actual model
+        });
+        
+        if (!response || !response.message || !response.message.content) {
+          throw new Error('Invalid response from AI');
+        }
+        
+        // Handle different response formats
+        if (typeof response.message.content === 'string') {
+          return response.message.content;
+        } else if (Array.isArray(response.message.content)) {
+          // Handle structured response format
+          return response.message.content
+            .filter(item => item.type === 'text')
+            .map(item => item.text)
+            .join('');
+        } else {
+          throw new Error('Unrecognized response format');
+        }
+      } catch (error) {
+        console.error('Error getting AI response:', error);
+        updateStatus('online', 'AI Ready (Error Occurred)');
+        return "I'm sorry, I had trouble processing your request. Please try again or ask a different question.";
+      }
+    }
+    
+    // Function to display AI response with typing effect
+    async function displayWithTypingEffect(text) {
+      hideTypingIndicator();
+      
+      const responseDiv = document.createElement('div');
+      responseDiv.classList.add('message', 'bot-message');
+      chatMessages.appendChild(responseDiv);
+      
+      const typingDelay = 5; // milliseconds per character (faster than before)
+      const characters = text.split('');
+      
+      // Function to type each character one at a time
+      function typeNextCharacter(index) {
+        if (index < characters.length) {
+          responseDiv.textContent += characters[index];
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          
+          // Schedule next character
+          setTimeout(() => typeNextCharacter(index + 1), typingDelay);
+        }
+      }
+      
+      // Start typing
+      typeNextCharacter(0);
+    }
+    
+    // Function to handle bot response
+    async function botReply(userMessage) {
+      if (!puterInitialized) {
+        await initializePuter();
+        if (!puterInitialized) {
+          return; // Don't proceed if initialization failed
+        }
+      }
+      
+      try {
+        // Show typing indicator
+        showTypingIndicator();
+        sendButton.disabled = true;
+        
+        // Get AI response
+        const aiResponse = await getAIResponse(userMessage);
+        
+        // Display the response with typing effect
+        await displayWithTypingEffect(aiResponse);
+      } catch (error) {
+        console.error('Error in bot reply:', error);
+        hideTypingIndicator();
+        addMessage("I encountered an error. Please try again.", false);
+      } finally {
+        sendButton.disabled = false;
+      }
+    }
+    
+    // Function to use an example prompt
+    function useExample(text) {
+      userInput.value = text;
+      userInput.focus();
+    }
+    
+    // Event listener for model selector change
+    modelSelector.addEventListener('change', () => {
+      selectedModel = modelSelector.value;
+      currentModelText.textContent = modelSelector.options[modelSelector.selectedIndex].text;
+    });
+    
+    // Event listener for send button click
+    sendButton.addEventListener('click', async () => {
+      const message = userInput.value.trim();
+      if (message !== '') {
+        // Add user message to chat
+        addMessage(message, true);
+        
+        // Clear input field
+        userInput.value = '';
+        
+        // Get bot response
+        await botReply(message);
+      }
+    });
+    
+    // Event listener for Enter key press
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !sendButton.disabled) {
+        sendButton.click();
+      }
+    });
+    
+    // Mobile menu toggle
+    document.querySelector('.nav-toggle').addEventListener('click', function() {
+      document.querySelector('.nav-links').classList.toggle('active');
+    });
+    
+    // Initialize when the page loads
+    window.addEventListener('DOMContentLoaded', () => {
+      userInput.focus();
+      initializePuter();
+      
+      // Set current year in footer if exists
+      const yearElement = document.getElementById('current-year');
+      if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
+      }
+    });
+  </script>
+</body>
+</html>
